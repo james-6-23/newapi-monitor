@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - newapi-monitor
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    env_file: [.env]
+    expose: ["8080"]
+    depends_on: [redis]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    networks:
+      - newapi-monitor
+
+  worker:
+    build: ./worker
+    restart: unless-stopped
+    env_file: [.env]
+    depends_on: [redis]
+    networks:
+      - newapi-monitor
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports: ["80:80"]
+    depends_on: [api]
+    networks:
+      - newapi-monitor
+
+  # 可选：superset（快速 BI）
+  # superset:
+  #   image: apache/superset:latest
+  #   ports: ["8088:8088"]
+  #   environment:
+  #     - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY}
+  #   volumes:
+  #     - superset-home:/app/superset_home
+  #   networks:
+  #     - newapi-monitor
+
+volumes:
+  redis-data:
+  superset-home:
+
+networks:
+  newapi-monitor:
+    driver: bridge

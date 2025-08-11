@@ -1,0 +1,59 @@
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 依赖目录
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# 构建产物
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志
+*.log
+logs/
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+
+# 缓存
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 临时文件
+tmp/
+temp/

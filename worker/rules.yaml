@@ -1,0 +1,60 @@
+# 风控规则配置文件
+# 可以覆盖环境变量中的默认配置
+
+rules:
+  # 突发频率检测
+  burst:
+    enabled: true
+    window_sec: 60
+    limit_per_token: 120
+    description: "检测Token在短时间内的异常高频请求"
+  
+  # 共享Token检测
+  multi_user_token:
+    enabled: true
+    users_threshold: 2
+    description: "检测被多个用户共享使用的Token"
+  
+  # 异常IP检测
+  ip_many_users:
+    enabled: true
+    users_threshold: 5
+    description: "检测单个IP下的多账号异常行为"
+  
+  # 超大请求检测
+  big_request:
+    enabled: true
+    sigma: 3
+    description: "基于3σ原则检测异常大的Token消耗"
+
+# 白名单配置
+whitelist:
+  # IP白名单（内网IP等）
+  ips:
+    - "127.0.0.1"
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+  
+  # 用户白名单（系统账号等）
+  users:
+    - "system"
+    - "admin"
+  
+  # Token白名单（内部Token等）
+  tokens: []
+
+# 告警配置
+alerts:
+  # 告警冷却时间（秒）
+  cooldown_seconds: 300
+  
+  # 批量告警阈值
+  batch_threshold: 10
+  
+  # 告警模板
+  templates:
+    burst: "🚨 突发频率告警\nToken: {token_name}\n时间窗口: {window_sec}秒\n请求次数: {request_count}\n阈值: {threshold}"
+    multi_user_token: "🚨 共享Token告警\nToken: {token_name}\n用户数: {user_count}\n用户列表: {users}"
+    ip_many_users: "🚨 异常IP告警\nIP: {ip}\n用户数: {user_count}\n用户列表: {users}"
+    big_request: "🚨 超大请求告警\nToken: {token_name}\n请求大小: {token_count}\n均值: {mean}\n标准差: {std}"

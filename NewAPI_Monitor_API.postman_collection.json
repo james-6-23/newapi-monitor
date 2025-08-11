@@ -1,0 +1,542 @@
+{
+  "info": {
+    "name": "NewAPI Monitor API",
+    "description": "NewAPI监控与风控系统API接口集合",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost/api",
+      "type": "string"
+    },
+    {
+      "key": "start_ms",
+      "value": "{{$timestamp}}000",
+      "type": "string"
+    },
+    {
+      "key": "end_ms",
+      "value": "{{$timestamp}}000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "健康检查",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "检查系统健康状态"
+          },
+          "response": [
+            {
+              "name": "成功响应",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"ok\": true,\n  \"timestamp\": \"2024-08-11T12:00:00Z\",\n  \"version\": \"1.0.0\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "统计数据",
+      "item": [
+        {
+          "name": "时序数据 - 最近1小时",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/series?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&slot_sec=300",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "series"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000",
+                  "description": "开始时间戳(毫秒)"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000",
+                  "description": "结束时间戳(毫秒)"
+                },
+                {
+                  "key": "slot_sec",
+                  "value": "300",
+                  "description": "时间粒度(秒)"
+                }
+              ]
+            },
+            "description": "获取最近1小时的时序统计数据，5分钟粒度"
+          }
+        },
+        {
+          "name": "时序数据 - 最近24小时",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/series?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&slot_sec=3600",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "series"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "slot_sec",
+                  "value": "3600"
+                }
+              ]
+            },
+            "description": "获取最近24小时的时序统计数据，1小时粒度"
+          }
+        }
+      ]
+    },
+    {
+      "name": "TopN排行",
+      "item": [
+        {
+          "name": "用户Token消耗排行",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/top?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&by=user&metric=tokens&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "top"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "by",
+                  "value": "user"
+                },
+                {
+                  "key": "metric",
+                  "value": "tokens"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "获取用户Token消耗Top10排行"
+          }
+        },
+        {
+          "name": "模型请求数排行",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/top?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&by=model&metric=reqs&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "top"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "by",
+                  "value": "model"
+                },
+                {
+                  "key": "metric",
+                  "value": "reqs"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "获取模型请求数Top20排行"
+          }
+        },
+        {
+          "name": "Token请求数排行",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/top?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&by=token&metric=reqs&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "top"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "by",
+                  "value": "token"
+                },
+                {
+                  "key": "metric",
+                  "value": "reqs"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "获取Token请求数Top50排行"
+          }
+        },
+        {
+          "name": "通道配额消耗排行",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/top?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&by=channel&metric=quota_sum&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "top"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "by",
+                  "value": "channel"
+                },
+                {
+                  "key": "metric",
+                  "value": "quota_sum"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "获取通道配额消耗Top10排行"
+          }
+        }
+      ]
+    },
+    {
+      "name": "异常检测",
+      "item": [
+        {
+          "name": "突发频率检测",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/anomalies?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&rule=burst&window_sec=60&limit_per_token=120",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "anomalies"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "rule",
+                  "value": "burst"
+                },
+                {
+                  "key": "window_sec",
+                  "value": "60"
+                },
+                {
+                  "key": "limit_per_token",
+                  "value": "120"
+                }
+              ]
+            },
+            "description": "检测Token突发频率异常"
+          }
+        },
+        {
+          "name": "共享Token检测",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/anomalies?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&rule=multi_user_token&users_threshold=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "anomalies"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "rule",
+                  "value": "multi_user_token"
+                },
+                {
+                  "key": "users_threshold",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": "检测多用户共享Token异常"
+          }
+        },
+        {
+          "name": "同IP多账号检测",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/anomalies?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&rule=ip_many_users&users_threshold=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "anomalies"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "rule",
+                  "value": "ip_many_users"
+                },
+                {
+                  "key": "users_threshold",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "检测同IP多账号异常行为"
+          }
+        },
+        {
+          "name": "超大请求检测",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stats/anomalies?start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&rule=big_request&sigma=3.0",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "anomalies"],
+              "query": [
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "rule",
+                  "value": "big_request"
+                },
+                {
+                  "key": "sigma",
+                  "value": "3.0"
+                }
+              ]
+            },
+            "description": "检测超大Token请求异常(3σ原则)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "数据导出",
+      "item": [
+        {
+          "name": "导出时序数据CSV",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/export/csv?query_type=series&start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&slot_sec=3600",
+              "host": ["{{baseUrl}}"],
+              "path": ["export", "csv"],
+              "query": [
+                {
+                  "key": "query_type",
+                  "value": "series"
+                },
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "slot_sec",
+                  "value": "3600"
+                }
+              ]
+            },
+            "description": "导出时序数据为CSV格式"
+          }
+        },
+        {
+          "name": "导出TopN数据CSV",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/export/csv?query_type=top&start_ms={{$timestamp}}000&end_ms={{$timestamp}}000&by=user&metric=tokens",
+              "host": ["{{baseUrl}}"],
+              "path": ["export", "csv"],
+              "query": [
+                {
+                  "key": "query_type",
+                  "value": "top"
+                },
+                {
+                  "key": "start_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "end_ms",
+                  "value": "{{$timestamp}}000"
+                },
+                {
+                  "key": "by",
+                  "value": "user"
+                },
+                {
+                  "key": "metric",
+                  "value": "tokens"
+                }
+              ]
+            },
+            "description": "导出TopN排行数据为CSV格式"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 自动设置时间戳",
+          "const now = Date.now();",
+          "const oneHourAgo = now - 60 * 60 * 1000;",
+          "const oneDayAgo = now - 24 * 60 * 60 * 1000;",
+          "",
+          "// 根据请求名称设置不同的时间范围",
+          "const requestName = pm.info.requestName;",
+          "if (requestName.includes('1小时')) {",
+          "    pm.collectionVariables.set('start_ms', oneHourAgo);",
+          "    pm.collectionVariables.set('end_ms', now);",
+          "} else {",
+          "    pm.collectionVariables.set('start_ms', oneDayAgo);",
+          "    pm.collectionVariables.set('end_ms', now);",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 通用测试脚本",
+          "pm.test('状态码为200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('响应时间小于5秒', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('响应格式为JSON', function () {",
+          "    pm.response.to.be.json;",
+          "});",
+          "",
+          "// 检查响应内容",
+          "if (pm.response.json()) {",
+          "    const jsonData = pm.response.json();",
+          "    ",
+          "    if (jsonData.data) {",
+          "        pm.test('包含数据字段', function () {",
+          "            pm.expect(jsonData).to.have.property('data');",
+          "        });",
+          "    }",
+          "    ",
+          "    if (jsonData.ok !== undefined) {",
+          "        pm.test('健康检查正常', function () {",
+          "            pm.expect(jsonData.ok).to.be.true;",
+          "        });",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

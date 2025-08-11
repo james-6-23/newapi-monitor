@@ -1,0 +1,164 @@
+/* 全局样式 */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 布局样式 */
+.app-layout {
+  min-height: 100vh;
+}
+
+.app-header {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1890ff;
+}
+
+.app-sider {
+  background: #fff;
+  box-shadow: 2px 0 6px rgba(0, 21, 41, 0.05);
+}
+
+/* 图表容器样式 */
+.chart-container {
+  width: 100%;
+  height: 400px;
+  min-height: 300px;
+}
+
+.chart-container-small {
+  width: 100%;
+  height: 300px;
+  min-height: 200px;
+}
+
+/* 卡片样式 */
+.kpi-card {
+  text-align: center;
+  border-radius: 8px;
+}
+
+.kpi-card .ant-statistic-title {
+  color: #666;
+  font-size: 14px;
+}
+
+.kpi-card .ant-statistic-content {
+  color: #1890ff;
+}
+
+/* 表格样式 */
+.data-table {
+  background: #fff;
+  border-radius: 8px;
+}
+
+.data-table .ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+/* 筛选器样式 */
+.filter-container {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filter-item {
+  margin-right: 16px;
+  margin-bottom: 8px;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 16px;
+  }
+  
+  .filter-item {
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+}
+
+/* 加载状态样式 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* 错误状态样式 */
+.error-container {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+/* 空状态样式 */
+.empty-container {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+/* 工具提示样式 */
+.tooltip-content {
+  max-width: 300px;
+}
+
+/* 状态标签样式 */
+.status-tag {
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.status-normal {
+  background: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.status-warning {
+  background: #fffbe6;
+  color: #faad14;
+  border: 1px solid #ffe58f;
+}
+
+.status-danger {
+  background: #fff2f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
+}
