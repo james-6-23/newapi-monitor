@@ -61,9 +61,13 @@ class DataAggregator:
     
     async def _aggregate_global_hourly(self, start_time: datetime, end_time: datetime):
         """聚合全局小时级数据"""
+        # 转换为Unix时间戳
+        start_timestamp = int(start_time.timestamp())
+        end_timestamp = int(end_time.timestamp())
+
         sql_query = """
-            SELECT 
-                DATE_FORMAT(created_at, '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
+            SELECT
+                DATE_FORMAT(FROM_UNIXTIME(created_at), '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
                 COUNT(*) AS request_count,
                 COALESCE(SUM(prompt_tokens + completion_tokens), 0) AS total_tokens,
                 COALESCE(SUM(prompt_tokens), 0) AS prompt_tokens,
@@ -78,7 +82,7 @@ class DataAggregator:
             ORDER BY hour_bucket
         """
         
-        results = await execute_query_ro(sql_query, [start_time, end_time])
+        results = await execute_query_ro(sql_query, [start_timestamp, end_timestamp])
         
         if results:
             await self._upsert_aggregation_data(results, None, None, None)
@@ -86,9 +90,13 @@ class DataAggregator:
     
     async def _aggregate_user_hourly(self, start_time: datetime, end_time: datetime):
         """聚合用户维度小时级数据"""
+        # 转换为Unix时间戳
+        start_timestamp = int(start_time.timestamp())
+        end_timestamp = int(end_time.timestamp())
+
         sql_query = """
-            SELECT 
-                DATE_FORMAT(created_at, '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
+            SELECT
+                DATE_FORMAT(FROM_UNIXTIME(created_at), '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
                 user_id,
                 COUNT(*) AS request_count,
                 COALESCE(SUM(prompt_tokens + completion_tokens), 0) AS total_tokens,
@@ -104,7 +112,7 @@ class DataAggregator:
             ORDER BY hour_bucket, user_id
         """
         
-        results = await execute_query_ro(sql_query, [start_time, end_time])
+        results = await execute_query_ro(sql_query, [start_timestamp, end_timestamp])
         
         if results:
             await self._upsert_aggregation_data(results, "user_id", None, None)
@@ -112,9 +120,13 @@ class DataAggregator:
     
     async def _aggregate_model_hourly(self, start_time: datetime, end_time: datetime):
         """聚合模型维度小时级数据"""
+        # 转换为Unix时间戳
+        start_timestamp = int(start_time.timestamp())
+        end_timestamp = int(end_time.timestamp())
+
         sql_query = """
-            SELECT 
-                DATE_FORMAT(created_at, '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
+            SELECT
+                DATE_FORMAT(FROM_UNIXTIME(created_at), '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
                 model_name,
                 COUNT(*) AS request_count,
                 COALESCE(SUM(prompt_tokens + completion_tokens), 0) AS total_tokens,
@@ -130,7 +142,7 @@ class DataAggregator:
             ORDER BY hour_bucket, model_name
         """
         
-        results = await execute_query_ro(sql_query, [start_time, end_time])
+        results = await execute_query_ro(sql_query, [start_timestamp, end_timestamp])
         
         if results:
             await self._upsert_aggregation_data(results, None, "model_name", None)
@@ -138,9 +150,13 @@ class DataAggregator:
     
     async def _aggregate_channel_hourly(self, start_time: datetime, end_time: datetime):
         """聚合通道维度小时级数据"""
+        # 转换为Unix时间戳
+        start_timestamp = int(start_time.timestamp())
+        end_timestamp = int(end_time.timestamp())
+
         sql_query = """
-            SELECT 
-                DATE_FORMAT(created_at, '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
+            SELECT
+                DATE_FORMAT(FROM_UNIXTIME(created_at), '%%Y-%%m-%%d %%H:00:00') AS hour_bucket,
                 channel_id,
                 COUNT(*) AS request_count,
                 COALESCE(SUM(prompt_tokens + completion_tokens), 0) AS total_tokens,
@@ -156,7 +172,7 @@ class DataAggregator:
             ORDER BY hour_bucket, channel_id
         """
         
-        results = await execute_query_ro(sql_query, [start_time, end_time])
+        results = await execute_query_ro(sql_query, [start_timestamp, end_timestamp])
         
         if results:
             await self._upsert_aggregation_data(results, None, None, "channel_id")
