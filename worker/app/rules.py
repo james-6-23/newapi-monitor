@@ -34,6 +34,10 @@ class RuleEngine:
             # 计算时间范围
             end_time = datetime.now()
             start_time = end_time - timedelta(minutes=window_minutes)
+
+            # 转换为Unix时间戳
+            end_timestamp = int(end_time.timestamp())
+            start_timestamp = int(start_time.timestamp())
             
             # 查询SQL
             sql = """
@@ -58,7 +62,7 @@ class RuleEngine:
             
             params = [
                 window_sec, limit_per_token,
-                start_time, end_time,
+                start_timestamp, end_timestamp,
                 limit_per_token, window_sec
             ]
             
@@ -92,6 +96,10 @@ class RuleEngine:
             # 计算时间范围
             end_time = datetime.now()
             start_time = end_time - timedelta(hours=window_hours)
+
+            # 转换为Unix时间戳
+            end_timestamp = int(end_time.timestamp())
+            start_timestamp = int(start_time.timestamp())
             
             # 查询SQL
             sql = """
@@ -113,7 +121,7 @@ class RuleEngine:
                 LIMIT 100
             """
             
-            params = [users_threshold, start_time, end_time, users_threshold]
+            params = [users_threshold, start_timestamp, end_timestamp, users_threshold]
             results = await execute_query_ro(sql, params)
             
             # 过滤白名单
@@ -144,6 +152,10 @@ class RuleEngine:
             # 计算时间范围
             end_time = datetime.now()
             start_time = end_time - timedelta(hours=window_hours)
+
+            # 转换为Unix时间戳
+            end_timestamp = int(end_time.timestamp())
+            start_timestamp = int(start_time.timestamp())
             
             # 查询SQL
             sql = """
@@ -165,7 +177,7 @@ class RuleEngine:
                 LIMIT 100
             """
             
-            params = [users_threshold, start_time, end_time, users_threshold]
+            params = [users_threshold, start_timestamp, end_timestamp, users_threshold]
             results = await execute_query_ro(sql, params)
             
             # 过滤白名单IP
@@ -196,6 +208,10 @@ class RuleEngine:
             # 计算时间范围
             end_time = datetime.now()
             start_time = end_time - timedelta(hours=window_hours)
+
+            # 转换为Unix时间戳
+            end_timestamp = int(end_time.timestamp())
+            start_timestamp = int(start_time.timestamp())
             
             # 查询SQL（使用3σ原则）
             sql = """
@@ -245,8 +261,8 @@ class RuleEngine:
             """
             
             params = [
-                start_time, end_time, sigma,
-                start_time, end_time, sigma, sigma
+                start_timestamp, end_timestamp, sigma,
+                start_timestamp, end_timestamp, sigma, sigma
             ]
             
             results = await execute_query_ro(sql, params)

@@ -4,24 +4,24 @@
 SERIES_QUERY = """
 WITH RECURSIVE time_series AS (
     -- 生成时间序列
-    SELECT 
+    SELECT
         FROM_UNIXTIME(FLOOR(%(start_ms)s / 1000 / %(slot_sec)s) * %(slot_sec)s) AS bucket
     UNION ALL
-    SELECT 
+    SELECT
         DATE_ADD(bucket, INTERVAL %(slot_sec)s SECOND)
-    FROM time_series 
+    FROM time_series
     WHERE bucket < FROM_UNIXTIME(%(end_ms)s / 1000)
 ),
 aggregated_data AS (
-    SELECT 
-        FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(created_at) / %(slot_sec)s) * %(slot_sec)s) AS bucket,
+    SELECT
+        FROM_UNIXTIME(FLOOR(created_at / %(slot_sec)s) * %(slot_sec)s) AS bucket,
         COUNT(*) AS reqs,
         COALESCE(SUM(prompt_tokens + completion_tokens), 0) AS tokens,
         COUNT(DISTINCT user_id) AS users,
         COUNT(DISTINCT token_id) AS tokens_cnt
-    FROM logs 
-    WHERE created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-      AND created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+    FROM logs
+    WHERE created_at >= %(start_ms)s / 1000
+      AND created_at < %(end_ms)s / 1000
     GROUP BY bucket
 )
 SELECT 
@@ -47,8 +47,8 @@ TOP_QUERY_TEMPLATES = {
             COALESCE(SUM(l.quota), 0) AS quota_sum
         FROM logs l
         LEFT JOIN users u ON l.user_id = u.id
-        WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-          AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+        WHERE l.created_at >= %(start_ms)s / 1000
+          AND l.created_at < %(end_ms)s / 1000
         GROUP BY l.user_id, u.username
         ORDER BY {metric} DESC
         LIMIT %(limit)s
@@ -64,8 +64,8 @@ TOP_QUERY_TEMPLATES = {
             COALESCE(SUM(l.quota), 0) AS quota_sum
         FROM logs l
         LEFT JOIN tokens t ON l.token_id = t.id
-        WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-          AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+        WHERE l.created_at >= %(start_ms)s / 1000
+          AND l.created_at < %(end_ms)s / 1000
         GROUP BY l.token_id, t.name
         ORDER BY {metric} DESC
         LIMIT %(limit)s
@@ -79,8 +79,8 @@ TOP_QUERY_TEMPLATES = {
             COALESCE(SUM(l.prompt_tokens + l.completion_tokens), 0) AS tokens,
             COALESCE(SUM(l.quota), 0) AS quota_sum
         FROM logs l
-        WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-          AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+        WHERE l.created_at >= %(start_ms)s / 1000
+          AND l.created_at < %(end_ms)s / 1000
         GROUP BY l.model_name
         ORDER BY {metric} DESC
         LIMIT %(limit)s
@@ -96,8 +96,8 @@ TOP_QUERY_TEMPLATES = {
             COALESCE(SUM(l.quota), 0) AS quota_sum
         FROM logs l
         LEFT JOIN channels c ON l.channel_id = c.id
-        WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-          AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+        WHERE l.created_at >= %(start_ms)s / 1000
+          AND l.created_at < %(end_ms)s / 1000
         GROUP BY l.channel_id, c.name
         ORDER BY {metric} DESC
         LIMIT %(limit)s
@@ -125,8 +125,8 @@ ANOMALY_QUERIES = {
             MAX(l.created_at) AS last_request
         FROM logs l
         LEFT JOIN tokens t ON l.token_id = t.id
-        WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-          AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+        WHERE l.created_at >= %(start_ms)s / 1000
+          AND l.created_at < %(end_ms)s / 1000
         GROUP BY l.token_id, t.name
         HAVING COUNT(*) >= %(limit_per_token)s
            AND TIMESTAMPDIFF(SECOND, MIN(l.created_at), MAX(l.created_at)) <= %(window_sec)s
@@ -144,8 +144,8 @@ ANOMALY_QUERIES = {
         FROM logs l
         LEFT JOIN tokens t ON l.token_id = t.id
         LEFT JOIN users u ON l.user_id = u.id
-        WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-          AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+        WHERE l.created_at >= %(start_ms)s / 1000
+          AND l.created_at < %(end_ms)s / 1000
         GROUP BY l.token_id, t.name
         HAVING COUNT(DISTINCT l.user_id) >= %(users_threshold)s
         ORDER BY user_count DESC
@@ -161,8 +161,8 @@ ANOMALY_QUERIES = {
             COUNT(*) AS total_requests
         FROM logs l
         LEFT JOIN users u ON l.user_id = u.id
-        WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-          AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+        WHERE l.created_at >= %(start_ms)s / 1000
+          AND l.created_at < %(end_ms)s / 1000
           AND l.ip IS NOT NULL
           AND l.ip != ''
         GROUP BY l.ip
@@ -177,8 +177,8 @@ ANOMALY_QUERIES = {
                 AVG(prompt_tokens + completion_tokens) AS mean_tokens,
                 STDDEV(prompt_tokens + completion_tokens) AS std_tokens
             FROM logs
-            WHERE created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-              AND created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+            WHERE created_at >= %(start_ms)s / 1000
+              AND created_at < %(end_ms)s / 1000
               AND (prompt_tokens + completion_tokens) > 0
         ),
         big_requests AS (
@@ -197,8 +197,8 @@ ANOMALY_QUERIES = {
             LEFT JOIN tokens t ON l.token_id = t.id
             LEFT JOIN users u ON l.user_id = u.id
             CROSS JOIN stats s
-            WHERE l.created_at >= FROM_UNIXTIME(%(start_ms)s / 1000)
-              AND l.created_at < FROM_UNIXTIME(%(end_ms)s / 1000)
+            WHERE l.created_at >= %(start_ms)s / 1000
+              AND l.created_at < %(end_ms)s / 1000
               AND (l.prompt_tokens + l.completion_tokens) > (s.mean_tokens + %(sigma)s * s.std_tokens)
         )
         SELECT 
