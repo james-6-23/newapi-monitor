@@ -226,17 +226,21 @@ class DataAggregator:
             batch_data.append(data)
         
         # 分批插入
+        total_affected = 0
         for i in range(0, len(batch_data), self.batch_size):
             batch = batch_data[i:i + self.batch_size]
-            
+
             # 执行批量插入
-            affected_rows = 0
-            for data in batch:
-                affected_rows += await execute_query_agg(sql, data)
-            
-            logger.debug("批量插入聚合数据", 
+            affected_rows = await batch_insert_agg(sql, batch)
+            total_affected += affected_rows
+
+            logger.debug("批量插入聚合数据",
                         batch_size=len(batch),
                         affected_rows=affected_rows)
+
+        logger.info("聚合数据插入完成",
+                   total_records=len(batch_data),
+                   total_affected=total_affected)
     
     async def cleanup_old_aggregation_data(self, days_to_keep: int = 90):
         """清理旧的聚合数据"""

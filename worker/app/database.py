@@ -143,22 +143,23 @@ async def execute_query_agg(sql: str, params = None) -> int:
         raise
 
 
-async def batch_insert_agg(sql: str, data_list: List[Dict[str, Any]]) -> int:
+async def batch_insert_agg(sql: str, data_list: List) -> int:
     """批量插入聚合数据"""
     if not data_list:
         return 0
-    
+
     pool = await get_mysql_pool_agg()
-    
+
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
                 # 使用executemany进行批量插入
                 await cursor.executemany(sql, data_list)
+                await conn.commit()  # 确保提交事务
                 return cursor.rowcount
-                
+
     except Exception as e:
-        logger.error("批量插入失败", sql=sql[:100], error=str(e))
+        logger.error("批量插入失败", sql=sql[:100], data_count=len(data_list), error=str(e))
         raise
 
 
