@@ -1,8 +1,8 @@
 /**
  * Dashboard总览页面
  */
-import React, { useState, useMemo } from 'react';
-import { Card, Row, Col, Space, message } from 'antd';
+import { useState, useMemo } from 'react';
+import { Card, Space, message } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import * as echarts from 'echarts';
@@ -10,7 +10,7 @@ import * as echarts from 'echarts';
 import Chart from '@/components/Chart';
 import KPICard, { KPIItem } from '@/components/KPICard';
 import RangeFilter, { TimeRange } from '@/components/RangeFilter';
-import { getSeries, exportCsv, SeriesDataPoint } from '@/api/stats';
+import { getSeries, exportCsv } from '@/api/stats';
 
 const Dashboard: React.FC = () => {
   // 时间范围状态
@@ -147,7 +147,6 @@ const Dashboard: React.FC = () => {
       },
       xAxis: {
         type: 'time',
-        boundaryGap: false,
         axisLabel: {
           formatter: (value: number) => {
             return dayjs(value).format('HH:mm');

@@ -1,7 +1,7 @@
 /**
  * 异常中心页面
  */
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, Tabs, Space, Tag, message, Descriptions, Modal } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -9,8 +9,6 @@ import dayjs from 'dayjs';
 import DataTable from '@/components/DataTable';
 import RangeFilter, { TimeRange } from '@/components/RangeFilter';
 import { getAnomalies, exportCsv, Rule, getRuleLabel } from '@/api/stats';
-
-const { TabPane } = Tabs;
 
 const Anomalies: React.FC = () => {
   // 状态管理

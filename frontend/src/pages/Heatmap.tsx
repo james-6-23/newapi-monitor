@@ -36,19 +36,26 @@ const Heatmap: React.FC = () => {
 
   // 生成热力图数据
   const heatmapData = useMemo(() => {
-    if (!seriesData?.data) return [];
+    if (!seriesData?.data) {
+      return {
+        data: [] as [number, number, number][],
+        hours: ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
+                '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'],
+        days: ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+      };
+    }
 
     const data: [number, number, number][] = [];
     const hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
                    '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
     const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
-    seriesData.data.forEach(item => {
+    seriesData.data.forEach((item: any) => {
       const date = dayjs(item.bucket);
       const hour = date.hour();
       const day = date.day();
       const value = item[metric as keyof typeof item] as number;
-      
+
       data.push([hour, day, value]);
     });
 

@@ -122,7 +122,7 @@ const Top: React.FC = () => {
 
   // 表格列配置
   const columns = useMemo(() => {
-    const baseColumns = [
+    const baseColumns: any[] = [
       {
         title: '排名',
         key: 'rank',
@@ -135,13 +135,13 @@ const Top: React.FC = () => {
       baseColumns.push({
         title: '用户',
         key: 'user',
-        render: (record: any) => record.username || `用户${record.user_id}`,
+        render: (_: any, record: any) => record.username || `用户${record.user_id}`,
       });
     } else if (by === 'token') {
       baseColumns.push({
         title: 'Token',
         key: 'token',
-        render: (record: any) => record.token_name || `Token${record.token_id}`,
+        render: (_: any, record: any) => record.token_name || `Token${record.token_id}`,
       });
     } else if (by === 'model') {
       baseColumns.push({
@@ -153,7 +153,7 @@ const Top: React.FC = () => {
       baseColumns.push({
         title: '通道',
         key: 'channel',
-        render: (record: any) => record.channel_name || `通道${record.channel_id}`,
+        render: (_: any, record: any) => record.channel_name || `通道${record.channel_id}`,
       });
     }
 

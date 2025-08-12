@@ -86,8 +86,8 @@ const RangeFilter: React.FC<RangeFilterProps> = ({
     }
   };
 
-  const handleDateRangeChange = (dates: [Dayjs, Dayjs] | null) => {
-    if (dates) {
+  const handleDateRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
+    if (dates && dates[0] && dates[1]) {
       onChange({
         start: dates[0].valueOf(),
         end: dates[1].valueOf(),

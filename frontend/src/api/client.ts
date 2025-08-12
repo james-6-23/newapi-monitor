@@ -2,7 +2,7 @@
  * API客户端 - 统一的HTTP请求封装
  */
 
-export const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+export const API_BASE = import.meta.env?.VITE_API_BASE || '/api';
 
 export interface ApiError {
   error: string;

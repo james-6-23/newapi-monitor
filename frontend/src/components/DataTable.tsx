@@ -7,7 +7,7 @@ import type { ColumnsType, TableProps } from 'antd/es/table';
 
 const { Title } = Typography;
 
-export interface DataTableProps<T = any> extends Omit<TableProps<T>, 'columns'> {
+export interface DataTableProps<T = any> {
   title?: string;
   columns: ColumnsType<T>;
   data?: T[];
@@ -15,6 +15,11 @@ export interface DataTableProps<T = any> extends Omit<TableProps<T>, 'columns'> 
   showCard?: boolean;
   emptyText?: string;
   extra?: React.ReactNode;
+  pagination?: TableProps<T>['pagination'];
+  scroll?: TableProps<T>['scroll'];
+  size?: TableProps<T>['size'];
+  bordered?: boolean;
+  rowKey?: TableProps<T>['rowKey'];
 }
 
 function DataTable<T extends Record<string, any>>({
@@ -25,25 +30,31 @@ function DataTable<T extends Record<string, any>>({
   showCard = true,
   emptyText = '暂无数据',
   extra,
-  ...tableProps
+  pagination,
+  scroll,
+  size,
+  bordered,
+  rowKey,
 }: DataTableProps<T>) {
   const tableElement = (
     <Table
       columns={columns}
       dataSource={data}
       loading={loading}
-      pagination={{
+      pagination={pagination !== false ? {
         showSizeChanger: true,
         showQuickJumper: true,
         showTotal: (total, range) =>
           `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-        ...tableProps.pagination,
-      }}
+        ...pagination,
+      } : false}
       locale={{
         emptyText: <Empty description={emptyText} />,
       }}
-      scroll={{ x: 'max-content' }}
-      {...tableProps}
+      scroll={scroll || { x: 'max-content' }}
+      size={size}
+      bordered={bordered}
+      rowKey={rowKey}
     />
   );
 
