@@ -6,8 +6,8 @@ from typing import Dict, Any, List, Optional
 import requests
 import structlog
 
-from .config import settings, rules_config
-from .database import get_redis_client
+from app.config import settings, rules_config
+from app.database import get_redis_client
 
 logger = structlog.get_logger()
 

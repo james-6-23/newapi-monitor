@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 import structlog
 
-from .config import settings, rules_config
-from .database import execute_query_ro
-from .alerts import alert_manager
+from app.config import settings, rules_config
+from app.database import execute_query_ro
+from app.alerts import alert_manager
 
 logger = structlog.get_logger()
 

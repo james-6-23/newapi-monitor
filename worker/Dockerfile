@@ -18,4 +18,4 @@ COPY app/ ./app/
 COPY rules.yaml ./
 
 # 启动Worker
-CMD ["python", "app/worker.py"]
+CMD ["python", "-m", "app.worker"]

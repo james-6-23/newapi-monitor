@@ -137,8 +137,8 @@ class TopQueryParams(BaseModel):
     """TopN查询参数"""
     start_ms: int = Field(description="开始时间戳(毫秒)")
     end_ms: int = Field(description="结束时间戳(毫秒)")
-    by: str = Field(description="排序维度", regex="^(user|token|model|channel)$")
-    metric: str = Field(description="排序指标", regex="^(tokens|reqs|quota_sum)$")
+    by: str = Field(description="排序维度", pattern="^(user|token|model|channel)$")
+    metric: str = Field(description="排序指标", pattern="^(tokens|reqs|quota_sum)$")
     limit: int = Field(default=50, ge=1, le=1000, description="限制数量")
 
 
@@ -146,7 +146,7 @@ class AnomalyQueryParams(BaseModel):
     """异常检测查询参数"""
     start_ms: int = Field(description="开始时间戳(毫秒)")
     end_ms: int = Field(description="结束时间戳(毫秒)")
-    rule: str = Field(description="规则名称", regex="^(burst|multi_user_token|ip_many_users|big_request)$")
+    rule: str = Field(description="规则名称", pattern="^(burst|multi_user_token|ip_many_users|big_request)$")
     
     # 规则特定参数
     window_sec: Optional[int] = Field(default=60, description="时间窗口(秒)")
@@ -157,6 +157,6 @@ class AnomalyQueryParams(BaseModel):
 
 class ExportQueryParams(BaseModel):
     """导出查询参数"""
-    query_type: str = Field(description="查询类型", regex="^(series|top|anomalies)$")
-    format: str = Field(default="csv", description="导出格式", regex="^(csv|json)$")
+    query_type: str = Field(description="查询类型", pattern="^(series|top|anomalies)$")
+    format: str = Field(default="csv", description="导出格式", pattern="^(csv|json)$")
     # 其他参数继承自对应的查询参数

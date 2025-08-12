@@ -8,10 +8,10 @@ from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.cron import CronTrigger
 import structlog
 
-from .config import settings, rules_config
-from .database import get_mysql_pool_ro, get_mysql_pool_agg, get_redis_client, close_connections
-from .aggregator import data_aggregator
-from .rules import rule_engine
+from app.config import settings, rules_config
+from app.database import get_mysql_pool_ro, get_mysql_pool_agg, get_redis_client, close_connections
+from app.aggregator import data_aggregator
+from app.rules import rule_engine
 
 # 配置结构化日志
 structlog.configure(

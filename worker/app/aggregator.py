@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 import structlog
 
-from .database import execute_query_ro, execute_query_agg, get_last_aggregation_time, set_last_aggregation_time
+from app.database import execute_query_ro, execute_query_agg, get_last_aggregation_time, set_last_aggregation_time
 
 logger = structlog.get_logger()
 
