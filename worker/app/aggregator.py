@@ -20,19 +20,20 @@ class DataAggregator:
         try:
             # 获取最后聚合时间
             last_time = await get_last_aggregation_time()
-            
+
             # 计算聚合时间范围
-            end_time = datetime.now().replace(minute=0, second=0, microsecond=0)
-            
+            current_time = datetime.now()
+            end_time = current_time.replace(minute=0, second=0, microsecond=0)
+
             if last_time:
                 start_time = datetime.fromisoformat(last_time)
+                # 如果最后聚合时间就是当前小时，跳过
+                if start_time >= end_time:
+                    logger.debug("无需聚合数据", last_time=last_time, end_time=end_time.isoformat())
+                    return
             else:
+                # 首次运行，聚合过去几小时的数据
                 start_time = end_time - timedelta(hours=hours_back)
-            
-            # 确保不聚合当前小时的数据（可能不完整）
-            if end_time <= start_time:
-                logger.debug("无需聚合数据")
-                return
             
             logger.info("开始聚合小时级数据", 
                        start_time=start_time.isoformat(),
