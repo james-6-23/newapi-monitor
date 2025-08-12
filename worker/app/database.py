@@ -127,18 +127,19 @@ async def execute_query_ro(sql: str, params: dict = None) -> List[Dict[str, Any]
         raise
 
 
-async def execute_query_agg(sql: str, params: dict = None) -> int:
+async def execute_query_agg(sql: str, params = None) -> int:
     """执行聚合查询（有写权限）"""
     pool = await get_mysql_pool_agg()
-    
+
     try:
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                await cursor.execute(sql, params or {})
+                await cursor.execute(sql, params)
+                await conn.commit()  # 确保提交事务
                 return cursor.rowcount
-                
+
     except Exception as e:
-        logger.error("聚合查询执行失败", sql=sql[:100], error=str(e))
+        logger.error("聚合查询执行失败", sql=sql[:100], params=str(params)[:100], error=str(e))
         raise
 
 
