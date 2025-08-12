@@ -1,6 +1,6 @@
 """SQL查询模板模块"""
 
-# 时序数据查询 - 支持不同时间粒度的聚合
+# 时序数据查询 - 优先使用聚合表，支持不同时间粒度
 SERIES_QUERY = """
 WITH RECURSIVE time_series AS (
     -- 生成时间序列
@@ -12,7 +12,21 @@ WITH RECURSIVE time_series AS (
     FROM time_series
     WHERE bucket < FROM_UNIXTIME(%(end_ms)s / 1000)
 ),
-aggregated_data AS (
+-- 优先从聚合表获取小时级数据
+hourly_agg_data AS (
+    SELECT
+        hour_bucket AS bucket,
+        SUM(request_count) AS reqs,
+        SUM(total_tokens) AS tokens,
+        SUM(unique_users) AS users,
+        SUM(unique_tokens) AS tokens_cnt
+    FROM agg_usage_hourly
+    WHERE hour_bucket >= FROM_UNIXTIME(%(start_ms)s / 1000)
+      AND hour_bucket < FROM_UNIXTIME(%(end_ms)s / 1000)
+    GROUP BY hour_bucket
+),
+-- 如果需要更细粒度或聚合表没有数据，从logs表实时聚合
+realtime_agg_data AS (
     SELECT
         FROM_UNIXTIME(FLOOR(created_at / %(slot_sec)s) * %(slot_sec)s) AS bucket,
         COUNT(*) AS reqs,
@@ -22,35 +36,70 @@ aggregated_data AS (
     FROM logs
     WHERE created_at >= %(start_ms)s / 1000
       AND created_at < %(end_ms)s / 1000
+      AND (%(slot_sec)s < 3600 OR NOT EXISTS (SELECT 1 FROM agg_usage_hourly LIMIT 1))
     GROUP BY bucket
+),
+-- 合并聚合表和实时数据
+combined_data AS (
+    SELECT bucket, reqs, tokens, users, tokens_cnt FROM hourly_agg_data
+    WHERE %(slot_sec)s >= 3600
+    UNION ALL
+    SELECT bucket, reqs, tokens, users, tokens_cnt FROM realtime_agg_data
 )
-SELECT 
+SELECT
     ts.bucket,
-    COALESCE(ad.reqs, 0) AS reqs,
-    COALESCE(ad.tokens, 0) AS tokens,
-    COALESCE(ad.users, 0) AS users,
-    COALESCE(ad.tokens_cnt, 0) AS tokens_cnt
+    COALESCE(cd.reqs, 0) AS reqs,
+    COALESCE(cd.tokens, 0) AS tokens,
+    COALESCE(cd.users, 0) AS users,
+    COALESCE(cd.tokens_cnt, 0) AS tokens_cnt
 FROM time_series ts
-LEFT JOIN aggregated_data ad ON ts.bucket = ad.bucket
+LEFT JOIN combined_data cd ON ts.bucket = cd.bucket
 ORDER BY ts.bucket;
 """
 
-# TopN查询模板 - 支持按不同维度和指标排序
+# TopN查询模板 - 优先使用聚合表，支持按不同维度和指标排序
 TOP_QUERY_TEMPLATES = {
     'user': """
-        SELECT 
-            l.user_id,
+        WITH agg_data AS (
+            SELECT
+                user_id,
+                {metric_expr_agg} AS {metric},
+                SUM(request_count) AS reqs,
+                SUM(total_tokens) AS tokens,
+                SUM(quota_sum) AS quota_sum
+            FROM agg_usage_hourly
+            WHERE hour_bucket >= FROM_UNIXTIME(%(start_ms)s / 1000)
+              AND hour_bucket < FROM_UNIXTIME(%(end_ms)s / 1000)
+            GROUP BY user_id
+        ),
+        realtime_data AS (
+            SELECT
+                l.user_id,
+                {metric_expr} AS {metric},
+                COUNT(*) AS reqs,
+                COALESCE(SUM(l.prompt_tokens + l.completion_tokens), 0) AS tokens,
+                COALESCE(SUM(l.quota), 0) AS quota_sum
+            FROM logs l
+            WHERE l.created_at >= %(start_ms)s / 1000
+              AND l.created_at < %(end_ms)s / 1000
+              AND NOT EXISTS (SELECT 1 FROM agg_usage_hourly LIMIT 1)
+            GROUP BY l.user_id
+        ),
+        combined_data AS (
+            SELECT user_id, {metric}, reqs, tokens, quota_sum FROM agg_data
+            UNION ALL
+            SELECT user_id, {metric}, reqs, tokens, quota_sum FROM realtime_data
+        )
+        SELECT
+            cd.user_id,
             u.username,
-            {metric_expr} AS {metric},
-            COUNT(*) AS reqs,
-            COALESCE(SUM(l.prompt_tokens + l.completion_tokens), 0) AS tokens,
-            COALESCE(SUM(l.quota), 0) AS quota_sum
-        FROM logs l
-        LEFT JOIN users u ON l.user_id = u.id
-        WHERE l.created_at >= %(start_ms)s / 1000
-          AND l.created_at < %(end_ms)s / 1000
-        GROUP BY l.user_id, u.username
-        ORDER BY {metric} DESC
+            cd.{metric},
+            cd.reqs,
+            cd.tokens,
+            cd.quota_sum
+        FROM combined_data cd
+        LEFT JOIN users u ON cd.user_id = u.id
+        ORDER BY cd.{metric} DESC
         LIMIT %(limit)s
     """,
     
@@ -109,6 +158,13 @@ METRIC_EXPRESSIONS = {
     'tokens': 'COALESCE(SUM(l.prompt_tokens + l.completion_tokens), 0)',
     'reqs': 'COUNT(*)',
     'quota_sum': 'COALESCE(SUM(l.quota), 0)'
+}
+
+# 聚合表指标表达式映射
+METRIC_EXPRESSIONS_AGG = {
+    'tokens': 'SUM(total_tokens)',
+    'reqs': 'SUM(request_count)',
+    'quota_sum': 'SUM(quota_sum)'
 }
 
 # 异常检测查询模板
@@ -221,14 +277,15 @@ def get_top_query(by: str, metric: str) -> str:
     """获取TopN查询SQL"""
     if by not in TOP_QUERY_TEMPLATES:
         raise ValueError(f"不支持的维度: {by}")
-    
+
     if metric not in METRIC_EXPRESSIONS:
         raise ValueError(f"不支持的指标: {metric}")
-    
+
     template = TOP_QUERY_TEMPLATES[by]
     metric_expr = METRIC_EXPRESSIONS[metric]
-    
-    return template.format(metric=metric, metric_expr=metric_expr)
+    metric_expr_agg = METRIC_EXPRESSIONS_AGG[metric]
+
+    return template.format(metric=metric, metric_expr=metric_expr, metric_expr_agg=metric_expr_agg)
 
 
 def get_anomaly_query(rule: str) -> str:
