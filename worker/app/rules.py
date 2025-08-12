@@ -55,7 +55,7 @@ class RuleEngine:
                   AND l.created_at < %s
                 GROUP BY l.token_id, t.name
                 HAVING COUNT(*) >= %s
-                   AND TIMESTAMPDIFF(SECOND, MIN(l.created_at), MAX(l.created_at)) <= %s
+                   AND (MAX(l.created_at) - MIN(l.created_at)) <= %s
                 ORDER BY request_count DESC
                 LIMIT 100
             """
